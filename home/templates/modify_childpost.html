@@ -1,0 +1,18 @@
+{% block main_content %}
+<!-- Form de modification du post-->
+<form method="post" action="/childpost_modified">
+    <!-- Token de django permettant d'utiliser la méthode post pour les form -->
+    {% csrf_token %}
+    <div class="row">
+        <div class="input-field col s12">
+            <textarea id="textarea1" class="materialize-textarea"
+                name="body">{{childPostToModify.body | safe}}</textarea>
+            <label for="textarea1">Textarea</label>
+        </div>
+    </div>
+
+    <div align="center"><button class="btn-large waves-effect waves-light" type="submit"
+            style="background-color: #05c46b;">Envoyer</button></div>
+</form>
+
+{% endblock main_content %}

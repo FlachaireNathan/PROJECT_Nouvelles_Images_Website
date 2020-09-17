@@ -1,0 +1,26 @@
+<!-- Page indépendante du reste qui sert à s'authentifier -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="static/css/auth.css">
+    <title>Authentification google</title>
+</head>
+
+<body>
+    <div class="main-div">
+        <div class="container outer-div">
+            <h3>Connectez vous avec votre compte google</h3>
+            <!-- Bouton qui envoie la requête à google grâce aux info rentré dans les settings de l'app django -->
+            <a class="btn inner-div" data-onsuccess="onSignIn" data-width="300" data-height="100"
+                href="{% url 'social:begin' 'google-oauth2' %}?next=/index">Login</a>
+        </div>
+    </div>
+
+</body>
+
+</html>

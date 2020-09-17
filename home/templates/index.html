@@ -1,0 +1,88 @@
+<!-- Bouton permettant le tri -->
+<div class="trier">
+    Trier par ordre :
+    <div class="tooltip">
+        <form action="/index/mostRecent">
+            <button class="waves-effect waves-light btn-small" type="submit">Plus récent</button>
+        </form>
+    </div>
+    <div class="tooltip">
+        <form action="/index/mostOlder">
+            <button class="waves-effect waves-light btn-small" type="submit">Plus vieux</button>
+        </form>
+    </div>
+    <div class="tooltip">
+        <form action="/index/alphabetical">
+            <button class="waves-effect waves-light btn-small" type="submit"> Alphabétique </button>
+        </form>
+        <!-- <span class="tooltiptext">Alphabétique</span> -->
+    </div>
+</div>
+
+
+{% block content %}
+
+
+<!-- S'il n'y a pas de post, affiche un message qui indique qu'il n'y a pas de sujets -->
+{% if isPost == False %}
+<div class="no-post">
+    <h2>Aucun Sujet</h2>
+</div>
+
+{% else %}
+
+<!-- Partie pagination de l'index. Pour mieux comprendre le fonctionnement, il faut se référer à paginator de django. -->
+<ul class="pagination" align='center'>
+
+    <!-- S'il a un précédent, on affiche un bouton cliquable avec le bon lien sinon des boutons désactivés -->
+    {% if theThreadsToShow.has_previous == True %}
+    <li class="waves-effect"><a href="?page=1"><i class="material-icons">first_page</i></a></li>
+    <li class="waves-effect"><a href="?page={{ theThreadsToShow.previous_page_number }}"><i
+                class="material-icons">chevron_left</i></a></li>
+    {% else %}
+    <li class="disabled"><a href="#!"><i class="material-icons">first_page</i></a></li>
+    <li class="disabled"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
+    {% endif %}
+
+    <!-- Une boucle qui affichera un bouton portant le numéro de la page pour les 2 précédent, l'actuel et les 2 suivant-->
+    {% for num in theThreadsToShow.paginator.page_range %}
+    {% if theThreadsToShow.number == num %}
+    <li class="active"><a href="#!">{{num}}</a></li>
+    {% elif num > theThreadsToShow.number|add:'-3' and num < theThreadsToShow.number|add:'3' %}
+    <li class="waves-effect"><a href="?page={{num}}">{{num}}</a></li>
+    {% endif %}
+    {%endfor%}
+
+    <!-- S'il a un suivant, on affiche un bouton cliquable avec le bon lien sinon des boutons désactivés -->
+    {% if theThreadsToShow.has_next == True %}
+    <li class="waves-effect"><a href="?page={{ theThreadsToShow.next_page_number }}"><i
+                class="material-icons">chevron_right</i></a></li>
+    <li class="waves-effect"><a href="?page={{ theThreadsToShow.paginator.num_pages }}"><i
+                class="material-icons">last_page</i></a>
+    </li>
+    {% else %}
+    <li class="disabled"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
+    <li class="disabled"><a href="#!"><i class="material-icons">last_page</i></a></li>
+    {% endif %}
+</ul>
+
+<!-- Boucle qui va parcourir tous les Threads et les afficher -->
+<div id="threads-displayed" value="">
+    {% for i in theThreadsToShow %}
+    <div class="thread" onclick="location.href='/thread-{{i.id}}';">
+        <div class="box">
+            <h6>{{ i.title }}</h6>
+            <div class="push"><i class="material-icons" style="color: #0be881; font-size: 40px;">
+                    {% if i.resolved == True %}
+                    done
+                    {% endif %}
+                </i></div>
+        </div>
+        <div class="right-align">Sujet posté par {{ i.user_op }} le {{ i.creation_date }}</div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endif %}
+
+{% endblock %}

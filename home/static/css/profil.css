@@ -1,0 +1,10 @@
+.portrait {
+    padding: 5px;
+    margin-top: 50px;
+}
+
+.avatar-pic {
+    max-height: 300px;
+    max-width: 300px;
+    border-radius: 50%;
+}

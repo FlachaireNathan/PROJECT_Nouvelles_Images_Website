@@ -1,0 +1,23 @@
+{% block main_content %}
+<!-- Form de modification du post-->
+<form method="post" action="/post_modified">
+
+    <!-- Token de django permettant d'utiliser la méthode post pour les form -->
+    {% csrf_token %}
+
+    <textarea id="texteditor1" name="body">{{postToModify.body | safe}}</textarea>
+
+    <div align="center"><button class="btn-large waves-effect waves-light" type="submit"
+            style="background-color: #05c46b;">Envoyer</button></div>
+</form>
+
+<!-- Link vers les fichiers de ckeditor -->
+<script type="text/javascript" src="/static/ckeditor/ckeditor-init.js"
+    data-ckeditor-basepath="/static/ckeditor/ckeditor/" id="ckeditor-init-script"></script>
+<script type="text/javascript" src="/static/ckeditor/ckeditor/ckeditor.js"></script>
+
+<!-- On remplace le textarea par un ckeditor (rich text) -->
+<script>
+    CKEDITOR.replace('texteditor1');
+</script>
+{% endblock main_content %}

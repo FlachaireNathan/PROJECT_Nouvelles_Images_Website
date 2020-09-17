@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="../static/css/materialize.min.css" />
+
+    <!-- CSS link -->
+    <link rel="stylesheet" type="text/css" href="../static/css/layout.css" />
+    <link rel="stylesheet" type="text/css" href="../static/css/home.css" />
+    <link rel="stylesheet" type="text/css" href="../static/css/thread.css" />
+    <link rel="stylesheet" type="text/css" href="../static/css/new_thread.css" />
+    <link rel="stylesheet" type="text/css" href="../static/css/profil.css" />
+
+    <title>Ensiwiki</title>
+</head>
+
+<body>
+    <div class="content">
+        <header>
+
+            <!-- Nav (ou bandeau rouge en haut de l'écran) -->
+            <nav>
+                <div class="nav-wrapper">
+                    <a href="/index" class="brand-logo">
+                        <img class="logo-img" src="../static/img/ENSI-rvb.png" alt="">
+                    </a>
+                    <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                    <ul id="nav-mobile" class="right hide-on-med-and-down">
+                        <li>
+                            <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+                        </li>
+                        <li>
+                            <form method="POST" action="/index/search">
+                                <input id="search" class="searcher" name="search" type="search" required />
+                                {% csrf_token %}
+                            </form>
+                        </li>
+                        <li><a href="new_thread" class="waves-effect waves-light btn-large green">Créer un Nouveau
+                                Sujet</a></li>
+                        <li><a href="/logout/" class="waves-effect waves-light btn-large red">Deconnexion</a></li>
+                        <li>
+                            <a href="/profil/{{ request.user }}">{{ request.user }}</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Lorsque la largeur de la page est pour mobile, affiche le nav sur le coté  -->
+            <ul class="sidenav" id="mobile-demo">
+                <li>
+                    Chercher :
+                    <form method="POST" action="/index/search">
+                        <input id="search" name="search" type="search" required>
+                        {% csrf_token %}
+                    </form>
+                </li>
+                <li><a href="new_thread">Nouveau Sujet</a></li>
+                <li><a href="/logout/">Déconnexion</a></li>
+                <li>
+                    <a href="/profil/{{ request.user }}">Profil</a>
+                </li>
+            </ul>
+        </header>
+
+        <!-- Partie du body ou le contenu de la page est load -->
+        <div class="container">
+            {% include template_to_load %}
+        </div>
+    </div>
+
+    <!-- Footer de la page -->
+    <footer class="container">
+        © 2019 Ecoles des Nouvelles Images
+    </footer>
+
+    <!-- JavaScript at end of body for optimized loading -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/materialize.min.js"></script>
+
+    <!-- Script pour agrandir la taille de la barre de recherche -->
+    <script>
+        document.getElementById("search").style.width = "300px";
+    </script>
+
+    <script>
+        // Fonction qui lie le bouton menu (lorsque la largeur de la page est de la taille d'un mobile)
+        $(document).ready(function () {
+            $(".sidenav").sidenav();
+        });
+    </script>
+</body>
+
+</html>

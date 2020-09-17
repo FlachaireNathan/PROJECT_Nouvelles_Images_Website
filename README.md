@@ -1,0 +1,1 @@
+Stack Overflow style website made with django for an intership at the school of "Nouvelles Images".

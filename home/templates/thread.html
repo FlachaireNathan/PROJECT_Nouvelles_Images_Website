@@ -1,0 +1,498 @@
+{% block content %}
+<!-- Question du thread -->
+<div class="main-thread" id="{{ selectedThread.id | safe }}">
+  <h3 class="title">{{ selectedThread.title }}</h3>
+  <div class="thread-text">{{ selectedThread.body | safe }}</div>
+  <!-- Bandeau d'info à propos du Thread (date, auteur, etc...) -->
+  <div class="row valign-wrapper">
+    {% if selectedThread.modification == True %}
+    <!-- Si le thread a été modifié, affiche les info date et auteur de la dernière fois -->
+    <div class="col s3 left-align" style="font-size: 11px;">
+      Modifié par
+      <a href="profil/{{ pinnedAnswer.user_modo }}">{{ selectedThread.user_modo }}</a>
+      le {{ selectedThread.modification_date }}
+    </div>
+    {% endif %}
+    <!-- Si c'est l'auteur du thread ou un modo et que le thread n'ets pas encore vérouillé, affiche les boutons pour supprimer et modifier -->
+    {% if i.user_op == request.user or request.user.is_staff == True and selectedThread.resolved == False %}
+    <div class="col s6 center-align row">
+      <div class="col s6" align="right">
+        <form method="POST" action="/modify_thread">
+          {% csrf_token %}
+          <!-- Info a envoyer pour la modification de post -->
+          <textarea style="display: none" name="title">{{ selectedThread.title | safe }}</textarea>
+          <textarea style="display: none" name="body">{{ selectedThread.body | safe }}</textarea>
+          <textarea style="display: none" name="id">{{ selectedThread.id | safe }}</textarea>
+          <button class="waves-effect waves-light edit-button" type="submit">
+            Modifier
+          </button>
+        </form>
+      </div>
+      <div class="col s6" align="left">
+        <button class="waves-effect waves-light delete-button" onclick="deleteThread()">
+          Supprimer
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Date et auteur du thread-->
+    <div class="col s3 right-align" style="font-size: 13px">
+      <a href="profil/{{ pinnedAnswer.user_op }}"><img
+          src="{{ pinnedAnswer.user_op.img }}" />{{ selectedThread.user_op }}</a>
+      <br />
+      {{ selectedThread.creation_date }}
+    </div>
+  </div>
+</div>
+
+<!-- Si le thread a une réponse, on l'affiche, la structure est la même que pour le thread, le titre en moins (remplacé par Réponse principale)-->
+{% if isPinnedAnswer == True %}
+<div class="main-answer row" id="{{pinnedAnswer.id}}">
+  <h4>Réponse Principale</h4>
+  <div>{{ pinnedAnswer.body | safe }}</div>
+  <div class="row valign-wrapper">
+    {% if pinnedAnswer.modification == True %}
+    <div class="col s3 left-align" style="font-size: 11px;">
+      Modifié par
+      <a href="profil/{{ pinnedAnswer.user_modo }}">{{ pinnedAnswer.user_modo }}</a>
+      le {{ pinnedAnswer.modification_date }}
+    </div>
+    {% endif %}
+    {% if pinnedAnswer.user_op == request.user or request.user.is_staff == True and selectedThread.resolved == False %}
+    <div class="col s6 center-align row">
+      <div class="col s6" align="right">
+        <form method="POST" action="/modify_post">
+          {% csrf_token %}
+          <textarea style="display: none" name="body">{{ pinnedAnswer.body | safe }}</textarea>
+          <textarea style="display: none" name="id">{{ pinnedAnswer.id | safe }}</textarea>
+          <button class="waves-effect waves-light edit-button" type="submit">
+            Modifier
+          </button>
+        </form>
+      </div>
+      <div class="col s6" align="left">
+        <button class="waves-effect waves-light delete-button" onclick="deletePostFromPinned()">
+          Supprimer
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="col s3 right-align" style="font-size: 13px">
+      <a href="profil/{{ pinnedAnswer.user_op }}"><img
+          src="{{ pinnedAnswer.user_op.img }}" />{{ pinnedAnswer.user_op }}</a>
+      <br />
+      {{ pinnedAnswer.creation_date }}
+    </div>
+  </div>
+
+  <!-- Si la réponse a des commentaires, on les affiches. On fait un boucle pour les parcourir et afficher ce qui est necessaire -->
+  {% if isPinnedAnswerChild == True %}
+  {% for i in thePinnedAnswerChilds %}
+  <div class="comment-answer col s10 offset-s2">
+    <div>{{ i.body | safe }}</div> <!-- Texte du commentaire -->
+    <div class="row valign-wrapper">
+      {% if i.modification == True %}
+      <!-- S'il y eu une modification, affiche auteur + date -->
+      <div class="col s3 left-align" style="font-size: 11px;">
+        Modifié par
+        <a href="profil/{{ pinnedAnswer.user_modo }}">{{ i.user_modo | safe }}</a>
+        le {{ i.modification_date | safe }}
+      </div>
+      {% endif %}
+      <!-- Même chose que pour le thread au niveau de la modification, suppression de post -->
+      {% if pinnedAnswer.user_op == request.user or request.user.is_staff == True and selectedThread.resolved == False %}
+      <div class="col s6 center-align row" id="{{i.id}}">
+        <div class="col s6" align="right">
+          <form method="POST" action="/modify_childpost">
+            {% csrf_token %}
+            <textarea style="display: none" name="body">{{ i.body | safe }}</textarea>
+            <textarea style="display: none" name="id">{{ i.id | safe }}</textarea>
+            <textarea style="display: none" name="thread_id">{{ selectedThread.id | safe }}</textarea>
+            <button class="waves-effect waves-light edit-button" type="submit" style="font-size: 11px">
+              Modifier
+            </button>
+          </form>
+        </div>
+        <div class="col s6" align="left">
+          <button class="waves-effect waves-light delete-button" style="font-size: 11px" onclick="deleteChildPostFromPinned()">
+            Supprimer
+          </button>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Info date + auteur du commentaire de commentaire -->
+      <div class="col s3 right-align" style="font-size: 11px">
+        <a href="profil/{{ pinnedAnswer.user_op }}"><img
+            src="{{ pinnedAnswer.user_op.img }}" />{{ i.user_op | safe }}</a>
+        {{ i.creation_date }}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <!-- Form pour poster un commentaire de commentaire de la réponse principale -->
+  <form method="post">
+    {% csrf_token %}
+    <div class="col s10 offset-s2">
+      <div class="row input-field col s12">
+        <textarea id="textarea1" class="materialize-textarea col s10"></textarea>
+        <label for="textarea1">Répondre</label>
+        <div align="center" class="col s2" id="divOfSubmitbutton">
+          <button class="btn-small waves-effect waves-light" id="sendButton" style="background-color: #05c46b;"
+            onclick="submitChildPost()">
+            Envoyer
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endif %}
+
+<!-- On parcourt tous les commentaires et commentaire de commentaire assemblé dans l'ordre au préalable dans views.py  -->
+<h5 class="comment-title">Commentaires ({{ allPostsSize }})</h5>
+<div class="row">
+  {% for i in allPosts %}
+  <!-- Si ce n'est pas un commentaire de commentaire (donc un post), on fait comme pour la réponse principale -->
+  {% if i.beingChild == False %}
+  <div class="comment col s12" id="{{ i.id }}">
+    <div>{{ i.body | safe }}</div>
+    <div class="row valign-wrapper">
+      {% if i.modification == True %}
+      <div class="col s3 left-align" style="font-size: 11px;">
+        Modifié par
+        <a href="profil/{{ pinnedAnswer.user_modo }}">{{ i.user_modo }}</a> le
+        {{ i.modification_date }}
+      </div>
+      {% endif %}
+      {% if i.user_op == request.user or request.user.is_staff == True and selectedThread.resolved == False %}
+      <div class="col s6 center-align row">
+        <div class="col s4" align="">
+          <form method="POST" action="/modify_post">
+            {% csrf_token %}
+            <textarea style="display: none" name="body">{{ i.body | safe }}</textarea>
+            <textarea style="display: none" name="id">{{ i.id | safe }}</textarea>
+            <button class="waves-effect waves-light edit-button" type="submit">
+              Modifier
+            </button>
+          </form>
+        </div>
+        <div class="col s4" align="">
+          <button class="waves-effect waves-light delete-button" onclick="deletePost()">
+            Supprimer
+          </button>
+        </div>
+        {% if request.user.is_staff == True and selectedThread.resolved == False %}
+        <div class="col s4">
+          <button class="waves-effect waves-light pin-button" onclick="pinPost()">
+            Épingler
+          </button>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="col s3 right-align" style="font-size: 13px">
+        <a href="profil/{{ pinnedAnswer.user_op }}"><img src="{{ pinnedAnswer.user_op.img }}" />{{ i.user_op }}</a>
+        <br />
+        {{ i.creation_date }}
+      </div>
+    </div>
+
+    <!-- Foirm pour poster un commentaire de commentaire -->
+    <form>
+      {% csrf_token %}
+      <div class="col s10 offset-s2" id="3divOfSubmitbutton">
+        <div class="row input-field col s12" id="2divOfSubmitbutton">
+          <textarea id="textarea1" class="materialize-textarea col s10"></textarea>
+          <label for="textarea1">Répondre</label>
+          <div align="center" class="col s2" id="divOfSubmitbutton">
+            <button class="btn-small waves-effect waves-light" id="sendButton" type="button"
+              style="background-color: #05c46b;" onclick="submitChildPost()">
+              Envoyer
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Sinon, c'est un commentaire de commentaire et on fait la même chose mais avec le style adapté et pas de form à la fin -->
+  {% else %}
+
+  <div class="commentofC col s10 offset-s2" id="{{ i.id }}">
+    <div style="font-size: 13px;">{{ i.body | safe }}</div>
+    <div class="row valign-wrapper">
+      {% if i.modification == True %}
+      <div class="col s3 left-align" style="font-size: 11px;">
+        Modifié par
+        <a href="profil/{{ pinnedAnswer.user_modo }}">{{ i.user_modo }}</a> le
+        {{ i.modification_date }}
+      </div>
+      {% endif %}
+      {% if pinnedAnswer.user_op == request.user or request.user.is_staff == True and selectedThread.resolved == False %}
+      <div class="col s6 center-align row">
+        <div class="col s6" align="right">
+          <form method="POST" action="/modify_childpost">
+            {% csrf_token %}
+            <textarea style="display: none" name="body">{{ i.body | safe }}</textarea>
+            <textarea style="display: none" name="id">{{ i.id | safe }}</textarea>
+            <textarea style="display: none" name="thread_id">{{ selectedThread.id | safe }}</textarea>
+            <button class="waves-effect waves-light edit-button" type="submit" style="font-size: 11px">
+              Modifier
+            </button>
+          </form>
+        </div>
+        <div class="col s6" align="left">
+          <button class="waves-effect waves-light delete-button" style="font-size: 11px" onclick="deleteChildPost()">
+            Supprimer
+          </button>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="col s3 right-align" style="font-size: 11px;">
+        <a href="profil/{{ pinnedAnswer.user_op }}">{{ i.user_op }}</a>
+        <i>{{ i.creation_date }}</i>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+</div>
+
+
+<!-- Si la personne est du staff et que le thread n'est pas vérouillé, on affiche le bouton permettant de le vérouiller -->
+{% if request.user.is_staff == True and selectedThread.resolved == False %}
+<div align="center">
+  <button class="waves-effect waves-light edit-button btn-large" onclick="lockThread()">
+    Vérouiller le sujet
+  </button>
+</div>
+{% endif %}
+
+<!-- Si le thread n'est pas vérouillé, tous le monde peut poster des commentaires dans ce form-->
+{% if selectedThread.resolved == False %}
+<div align="center">
+  <h5>Laissez un commentaire</h5>
+  <form method="POST" id="post-form" action="create_post">
+    {% csrf_token %}
+    <textarea style="display: none" name="thread_id">{{ selectedThread.id | safe }}</textarea>
+    {{ postForm.media }}
+    {{ postForm.as_p }}
+    <div>
+      <button class="btn-large waves-effect waves-light" style="background-color: #05c46b;" type="submit">
+        Envoyer
+      </button>
+    </div>
+  </form>
+</div>
+{% endif %}
+
+<!-- Si la personne est du staff et que le thread est vérouillé, on peut le rendre accessible de nouveau -->
+{% if request.user.is_staff == True and selectedThread.resolved == True %}
+<div align="center">
+  <button class="waves-effect waves-light edit-button btn-large" onclick="unlockThread()">
+    Rendre le sujet actif
+  </button>
+</div>
+{% endif %}
+{% endblock %}
+
+<script>
+  // Function pour soumettre un commentaire de commentaire en cliquant sur envoyer
+  function submitChildPost() {
+
+    var clickedButton = this.document.activeElement; // On récupère le bouton
+    idPost = clickedButton.parentNode.parentNode.parentNode.parentNode.parentNode.getAttribute(
+      "id"); // En parcourant le bon nombre d'élément parent, on peut récupérer l'id du post
+    bodyChildPost = clickedButton.parentNode.parentNode.parentNode.parentNode[1]
+      .value; // Pareil mais pour récupérer le texte que l'on doit envoyer
+
+    // On créer une requête ajax de type POST qui va envoyer le formulaire au backend
+    $.ajax({
+      url: "/ajax/add_childpost/",
+      type: "POST",
+      data: {
+        idPost: idPost,
+        bodychildPost: bodyChildPost,
+        csrfmiddlewaretoken: "{{ csrf_token }}"
+      },
+      dataType: "json",
+      success: function (data) {
+        document.location.reload(true);
+
+        if (data.is_taken) {
+          alert("A user with this username already exists.");
+        }
+
+      }
+    });
+
+  }
+
+  // Permet de transformer un post en réponse principale, même chose qu'avant  sauf qu'il n'y a pas besoin de récupérer de texte
+  function pinPost() {
+    var clickedButton = this.document.activeElement;
+
+    var idPost = clickedButton.parentNode.parentNode.parentNode.parentNode.getAttribute("id");
+
+    $.ajax({
+      url: "/ajax/pin_post/",
+      type: "POST",
+      data: {
+        idPost: idPost,
+        csrfmiddlewaretoken: "{{ csrf_token }}"
+      },
+      dataType: "json",
+      success: function (data) {
+        document.location.reload(true);
+      }
+    });
+  }
+
+  // Pareil que pour pin un post sauf qu'on le supprime et qu'on reviendra sur la page principale
+  function deleteThread() {
+    var clickedButton = this.document.activeElement;
+
+    var idThreadToDelete = clickedButton.parentNode.parentNode.parentNode.parentNode.getAttribute("id");
+
+    $.ajax({
+      url: "/ajax/delete_thread/",
+      type: "POST",
+      data: {
+        idThreadToDelete: idThreadToDelete,
+        csrfmiddlewaretoken: "{{ csrf_token }}"
+      },
+      dataType: "json",
+      success: function (data) {
+        window.location.href = "/index";
+      }
+    });
+  }
+
+  // Permet de supprimer un post, pareil que pour supprimer un thread
+  function deletePost() {
+    var clickedButton = this.document.activeElement;
+
+    var idPostToDelete = clickedButton.parentNode.parentNode.parentNode.parentNode.getAttribute("id");
+
+    $.ajax({
+      url: "/ajax/delete_post/",
+      type: "POST",
+      data: {
+        idPostToDelete: idPostToDelete,
+        csrfmiddlewaretoken: "{{ csrf_token }}"
+      },
+      dataType: "json",
+      success: function (data) {
+        document.location.reload(true);
+      }
+    });
+  }
+
+  function deletePostFromPinned() {
+    var clickedButton = this.document.activeElement;
+
+    var idPostToDelete = clickedButton.parentNode.parentNode.parentNode.parentNode.getAttribute("id");
+
+    $.ajax({
+      url: "/ajax/delete_post/",
+      type: "POST",
+      data: {
+        idPostToDelete: idPostToDelete,
+        csrfmiddlewaretoken: "{{ csrf_token }}"
+      },
+      dataType: "json",
+      success: function (data) {
+        document.location.reload(true);
+      }
+    });
+  }
+
+  // Idem pour les child post
+  function deleteChildPost() {
+    var clickedButton = this.document.activeElement;
+
+
+    var idChildPostToDelete = clickedButton.parentNode.parentNode.parentNode.parentNode.getAttribute("id");
+
+    $.ajax({
+      url: "/ajax/delete_childpost/",
+      type: "POST",
+      data: {
+        idChildPostToDelete: idChildPostToDelete,
+        csrfmiddlewaretoken: "{{ csrf_token }}"
+      },
+      dataType: "json",
+      success: function (data) {
+        document.location.reload(true);
+      }
+    });
+  }
+
+
+  function deleteChildPostFromPinned() {
+    var clickedButton = this.document.activeElement;
+
+    var idChildPostToDelete = clickedButton.parentNode.parentNode.getAttribute("id");
+
+    $.ajax({
+      url: "/ajax/delete_childpost/",
+      type: "POST",
+      data: {
+        idChildPostToDelete: idChildPostToDelete,
+        csrfmiddlewaretoken: "{{ csrf_token }}"
+      },
+      dataType: "json",
+      success: function (data) {
+        document.location.reload(true);
+      }
+    });
+  }
+
+  // Permet de vérouiller/résoudre un thread
+  function lockThread() {
+
+    idChildThreadToLock = "{{selectedThread.id | safe}}"; // On récupère l'id directement du context
+
+    idChildThreadToLock = parseInt(idChildThreadToLock); // On le parse en int puis on fait la requête ajax
+
+    $.ajax({
+      url: "/ajax/lock_thread/True",
+      type: "POST",
+      data: {
+        idChildThreadToLock: idChildThreadToLock,
+        csrfmiddlewaretoken: "{{ csrf_token }}"
+      },
+      dataType: "json",
+      success: function (data) {
+        document.location.reload(true);
+      }
+    });
+  }
+
+  // Idem mais pour dévérouiller
+  function unlockThread() {
+    idChildThreadToLock = "{{selectedThread.id | safe}}";
+
+    idChildThreadToLock = parseInt(idChildThreadToLock);
+
+    $.ajax({
+      url: "/ajax/lock_thread/False",
+      type: "POST",
+      data: {
+        idChildThreadToLock: idChildThreadToLock,
+        csrfmiddlewaretoken: "{{ csrf_token }}"
+      },
+      dataType: "json",
+      success: function (data) {
+        document.location.reload(true);
+      }
+    });
+  }
+</script>

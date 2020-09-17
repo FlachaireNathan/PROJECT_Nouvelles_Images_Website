@@ -1,0 +1,17 @@
+{% block main_content %}
+<form method="post">
+    {% csrf_token %}
+    <h3 class="center">Nouveau Sujet</h3>
+    <input type="text" name="title" id="id_title" placeholder="Donnez un titre">
+    <h5>Expliquez le problème</h5>
+
+    {{threadForm.media}}
+    {{threadForm.as_p}}
+
+    {% if threadIsWrong == True %}
+    <p class="conseil-text">Votre sujet n'est pas valide. Veuillez lui donner un titre ou décrire votre problème.</p>
+    {% endif %}
+    <div align="center"><button class="btn-large waves-effect waves-light" type="submit"
+            style="background-color: #05c46b;">Envoyer Sujet</button></div>
+</form>
+{% endblock main_content %}

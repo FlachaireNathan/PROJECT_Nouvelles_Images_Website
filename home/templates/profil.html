@@ -1,0 +1,27 @@
+{% block content %}
+<div class="void"></div>
+
+<div class="portrait" align="center">
+    <img class="avatar-pic" src="https://lesexpertsdurecouvrement.com/wp-content/uploads/2015/11/default-avatar.jpg"
+        alt="eh">
+    <h5>{{userToSee.username}}</h5>
+    <!-- <h6>{{User.staff_status}}</h6> -->
+</div>
+
+<div>
+    <h5>Derniers Sujets Créés</h5>
+    {% for i in theThreadsToShow %}
+    <div class="thread" onclick="location.href='/thread-{{i.id}}';">
+        <div class="box">
+            <h6>{{ i.title }}</h6>
+            <div class="push"><i class="material-icons" style="color: #0be881; font-size: 40px;">
+                    {% if i.resolved == True %}
+                    done
+                    {% endif %}
+                </i></div>
+        </div>
+        <div class="right-align">Sujet posté par <a href="#">{{ i.user_op }}</a> le {{ i.creation_date }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

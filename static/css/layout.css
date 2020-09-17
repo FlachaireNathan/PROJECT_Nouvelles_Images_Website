@@ -1,0 +1,59 @@
+.search-button {
+  display: none;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    margin: 0;
+}
+
+.content {
+  min-height: calc(100vh - 40px);
+}
+
+footer {
+  border-top: 1px solid;
+  border-color: #d2dae2;
+  height: 40px;
+  margin-left: 20px;
+  margin-right: 20px;
+  vertical-align: bottom;
+  position: relative;
+}
+
+.footer-content {
+  vertical-align: bottom;
+}
+
+.horizontal-div{
+  display : inline-block;
+  vertical-align : top;
+}
+
+nav {
+  background-color: #ef5777;
+}
+
+footer.page-footer {
+  background-color: #4bcffa;
+}
+
+a.new-thread {
+  font-size: 11px;
+}
+
+.box {
+  display: flex;
+}
+
+.push {
+  margin-left: auto;
+}
+
+/* Tooltip container */
+.tooltip-layout {
+  position: relative;
+  display: inline-block;
+}

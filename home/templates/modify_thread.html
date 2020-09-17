@@ -1,0 +1,28 @@
+{% block main_content %}
+<!-- Form de modification du post-->
+<form method="post" action="/thread_modified">
+    <!-- Token de django permettant d'utiliser la méthode post pour les form -->
+    {% csrf_token %}
+    <div class="row">
+        <div class="input-field col s12">
+            <textarea id="textarea1" class="materialize-textarea"
+                name="title">{{threadToModify.title | safe}}</textarea>
+            <label for="textarea1">Textarea</label>
+        </div>
+    </div>
+    <textarea id="texteditor1" name="body">{{threadToModify.body | safe}}</textarea>
+
+    <div align="center"><button class="btn-large waves-effect waves-light" type="submit"
+            style="background-color: #05c46b;">Envoyer</button></div>
+</form>
+
+<!-- Link vers les fichiers de ckeditor -->
+<script type="text/javascript" src="/static/ckeditor/ckeditor-init.js"
+    data-ckeditor-basepath="/static/ckeditor/ckeditor/" id="ckeditor-init-script"></script>
+<script type="text/javascript" src="/static/ckeditor/ckeditor/ckeditor.js"></script>
+
+<!-- On remplace le textarea par un ckeditor (rich text) -->
+<script>
+    CKEDITOR.replace('texteditor1');
+</script>
+{% endblock main_content %}
